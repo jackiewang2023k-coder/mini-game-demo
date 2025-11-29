@@ -8,10 +8,10 @@
   // 棋盘：10 列 20 行
   const COLS = 10;
   const ROWS = 20;
-  const BLOCK_SIZE = 24; // 比原来 30 更小，画布 240x480，更接近竖屏比例
+  const BLOCK_SIZE = 26; // 中号：介于 24 和 30 之间
 
-  canvas.width = COLS * BLOCK_SIZE;
-  canvas.height = ROWS * BLOCK_SIZE;
+  canvas.width = COLS * BLOCK_SIZE;   // 260
+  canvas.height = ROWS * BLOCK_SIZE;  // 520
 
   const COLORS = [
     '#000000',    // 0 空

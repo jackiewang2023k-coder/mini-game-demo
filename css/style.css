@@ -18,7 +18,7 @@ body {
   text-align: center;
   padding: 12px;
   width: 100%;
-  max-width: 360px; /* 竖屏手机典型宽度，约 9:16 */
+  max-width: 380px; /* 介于 360 和 420 之间 */
   color: #e5e7eb;
 }
 
@@ -77,31 +77,31 @@ h1 {
   display: flex;
   justify-content: center;
   align-items: flex-end;
-  gap: 16px;
+  gap: 18px;
   margin-bottom: 4px;
 }
 
 #ctrl-left {
   display: flex;
-  gap: 8px;
+  gap: 9px;
   align-items: center;
 }
 
 #ctrl-right {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 7px;
 }
 
-/* 按钮样式（触屏手指大小） */
+/* 按钮样式（中号） */
 .ctrl-btn {
-  width: 54px;
-  height: 54px;
+  width: 58px;
+  height: 58px;
   border-radius: 50%;
   border: 1px solid #9ca3af;
   background: #374151;
   color: #f9fafb;
-  font-size: 22px;
+  font-size: 23px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -109,12 +109,12 @@ h1 {
 }
 
 .ctrl-btn.rotate {
-  font-size: 24px;
+  font-size: 25px;
 }
 
 .ctrl-btn.vertical {
-  width: 48px;
-  height: 48px;
+  width: 52px;
+  height: 52px;
 }
 
 .ctrl-btn.main {
@@ -151,7 +151,7 @@ h1 {
 @media (max-width: 360px) {
   #page {
     padding: 8px;
-    max-width: 340px;
+    max-width: 350px;
   }
 
   h1 {
@@ -159,18 +159,18 @@ h1 {
   }
 
   .ctrl-btn {
-    width: 50px;
-    height: 50px;
-    font-size: 20px;
+    width: 54px;
+    height: 54px;
+    font-size: 21px;
   }
 
   .ctrl-btn.vertical {
-    width: 44px;
-    height: 44px;
+    width: 48px;
+    height: 48px;
   }
 
   #controls {
-    gap: 12px;
+    gap: 14px;
   }
 
   #tips-row .tip-left,
@@ -187,7 +187,5 @@ h1 {
     height: 52px;
   }
 }
-
-
 
 
