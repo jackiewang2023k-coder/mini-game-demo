@@ -8,7 +8,7 @@
   // 棋盘：10 列 20 行
   const COLS = 10;
   const ROWS = 20;
-  const BLOCK_SIZE = 30;
+  const BLOCK_SIZE = 24; // 比原来 30 更小，画布 240x480，更接近竖屏比例
 
   canvas.width = COLS * BLOCK_SIZE;
   canvas.height = ROWS * BLOCK_SIZE;
