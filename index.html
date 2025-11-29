@@ -10,26 +10,19 @@
   <div id="page">
     <h1>俄罗斯方块</h1>
 
-    <!-- 棋盘 -->
+    <!-- 棋盘 + 右侧小号 Next 提示 -->
     <div id="game-area">
       <canvas id="game-canvas"></canvas>
-    </div>
 
-    <!-- 下一块预览 -->
-    <div id="info-row">
-      <div id="next-wrapper">
-        <span class="label">Next</span>
-        <canvas id="next-canvas" width="80" height="80"></canvas>
+      <div id="side-info">
+        <div id="next-wrapper">
+          <span class="label">Next</span>
+          <canvas id="next-canvas" width="56" height="56"></canvas>
+        </div>
       </div>
     </div>
 
-    <!-- 提示放在两侧，小字号 -->
-    <div id="tips-row">
-      <span class="tip-left">◀ ▶：左右移动，↻：旋转</span>
-      <span class="tip-right">▼：下落，⏬：快速到底</span>
-    </div>
-
-    <!-- 控制区：左侧 左/旋转/右 ；右侧 单/双下箭头 -->
+    <!-- 控制按钮 -->
     <div id="controls">
       <div id="ctrl-left">
         <button class="ctrl-btn" data-action="left">◀</button>
@@ -42,8 +35,15 @@
         <button class="ctrl-btn vertical main" data-action="hard">⏬</button>
       </div>
     </div>
+
+    <!-- 简短提示，保持小字号 -->
+    <div id="tips-row">
+      <span class="tip-left">◀ ▶ 左右，↻ 旋转</span>
+      <span class="tip-right">▼ 下落，⏬ 快速到底</span>
+    </div>
   </div>
 
   <script src="js/main.js"></script>
 </body>
 </html>
+
