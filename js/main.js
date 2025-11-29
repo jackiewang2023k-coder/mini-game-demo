@@ -256,7 +256,7 @@
     ctx.fillStyle = '#111827';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // 网格放在方块下面
+    // 网格
     drawGrid();
 
     for (let y = 0; y < ROWS; y++) {
@@ -373,54 +373,31 @@
     }
   }
 
+  // 只支持触屏（手机优先）
   function bindControls() {
     const buttons = document.querySelectorAll('#controls [data-action]');
+
+    // 控制按钮：touchstart
     buttons.forEach(btn => {
       const action = btn.dataset.action;
-      const handler = (e) => {
+      btn.addEventListener('touchstart', (e) => {
         e.preventDefault();
         handleAction(action);
-      };
-      btn.addEventListener('touchstart', handler, { passive: false });
-      btn.addEventListener('mousedown', handler);
+      }, { passive: false });
     });
 
     // 点击棋盘：Game Over 时重新开始
-    const restartHandler = (e) => {
+    canvas.addEventListener('touchstart', (e) => {
       e.preventDefault();
       if (gameOver) {
         resetGame();
       }
-    };
-    canvas.addEventListener('touchstart', restartHandler, { passive: false });
-    canvas.addEventListener('mousedown', restartHandler);
-  }
-
-  // 保留键盘支持（PC 调试方便）
-  function bindKeyboard() {
-    document.addEventListener('keydown', (e) => {
-      if (gameOver && (e.code === 'Enter' || e.code === 'Space')) {
-        resetGame();
-        return;
-      }
-      if (e.code === 'ArrowLeft') {
-        handleAction('left');
-      } else if (e.code === 'ArrowRight') {
-        handleAction('right');
-      } else if (e.code === 'ArrowDown') {
-        handleAction('down');
-      } else if (e.code === 'ArrowUp') {
-        handleAction('rotate');
-      } else if (e.code === 'Space') {
-        handleAction('hard');
-      }
-    });
+    }, { passive: false });
   }
 
   function main() {
     resetGame();
     bindControls();
-    bindKeyboard();
     requestAnimationFrame(update);
   }
 

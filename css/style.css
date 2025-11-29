@@ -18,7 +18,7 @@ body {
   text-align: center;
   padding: 12px;
   width: 100%;
-  max-width: 420px; /* 竖屏手机适配 */
+  max-width: 420px; /* 竖屏手机适配宽度 */
   color: #e5e7eb;
 }
 
@@ -27,7 +27,7 @@ h1 {
   font-size: 20px;
 }
 
-/* 棋盘 + 右侧小号 Next 区域 */
+/* 棋盘 + 右侧 Next 区域 */
 #game-area {
   display: flex;
   justify-content: center;
@@ -44,7 +44,6 @@ h1 {
   image-rendering: crisp-edges;
 }
 
-/* 右侧信息区，只放小号 Next */
 #side-info {
   display: flex;
   flex-direction: column;
@@ -94,7 +93,7 @@ h1 {
   gap: 8px;
 }
 
-/* 按钮样式 */
+/* 按钮样式（触屏手指大小） */
 .ctrl-btn {
   width: 60px;
   height: 60px;
@@ -133,7 +132,7 @@ h1 {
   background: #2563eb;
 }
 
-/* 底部提示小字，左右分布 */
+/* 底部小提示文字 */
 #tips-row {
   display: flex;
   justify-content: space-between;
@@ -188,5 +187,6 @@ h1 {
     height: 52px;
   }
 }
+
 
 
