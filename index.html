@@ -10,12 +10,20 @@
   <div id="page">
     <h1>俄罗斯方块</h1>
 
-    <!-- 棋盘区域 -->
+    <!-- 棋盘 -->
     <div id="game-area">
       <canvas id="game-canvas"></canvas>
     </div>
 
-    <!-- 控制区域：左下左右+旋转，右侧单/双下箭头 -->
+    <!-- 信息条：下一块预览 -->
+    <div id="info-row">
+      <div id="next-wrapper">
+        <span class="label">Next</span>
+        <canvas id="next-canvas" width="80" height="80"></canvas>
+      </div>
+    </div>
+
+    <!-- 控制区：左侧 左/旋转/右 ；右侧 单/双下箭头 -->
     <div id="controls">
       <div id="ctrl-left">
         <button class="ctrl-btn" data-action="left">◀</button>
@@ -30,7 +38,7 @@
     </div>
 
     <p id="tip">
-      按钮说明：◀ ▶ 左右移动，↻ 旋转，▼ 普通下落，⏬ 快速到底。<br>
+      ◀ ▶ 左右移动，↻ 旋转，▼ 普通下落，⏬ 快速到底。<br>
       Game Over 时点棋盘即可重新开始。
     </p>
   </div>

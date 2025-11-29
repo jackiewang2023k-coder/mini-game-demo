@@ -2,6 +2,9 @@
   const canvas = document.getElementById('game-canvas');
   const ctx = canvas.getContext('2d');
 
+  const nextCanvas = document.getElementById('next-canvas');
+  const nextCtx = nextCanvas ? nextCanvas.getContext('2d') : null;
+
   // 棋盘：10 列 20 行
   const COLS = 10;
   const ROWS = 20;
@@ -12,13 +15,13 @@
 
   const COLORS = [
     '#000000',    // 0 空
-    '#00ffff',    // 1 I
-    '#0000ff',    // 2 J
-    '#ffa500',    // 3 L
-    '#ffff00',    // 4 O
-    '#00ff00',    // 5 S
-    '#800080',    // 6 T
-    '#ff0000'     // 7 Z
+    '#0ea5e9',    // 1 I
+    '#6366f1',    // 2 J
+    '#f97316',    // 3 L
+    '#eab308',    // 4 O
+    '#22c55e',    // 5 S
+    '#a855f7',    // 6 T
+    '#ef4444'     // 7 Z
   ];
 
   const SHAPES = {
@@ -33,15 +36,22 @@
 
   let board;
   let currentPiece;
+  let nextType;          // 下一块类型
+
   let score = 0;
   let lines = 0;
   let gameOver = false;
 
-  // 难度相关
-  let dropInterval = 800;      // 当前下落间隔（ms）
+  // 难度相关：更温和的曲线
+  const BASE_INTERVAL = 900;      // 初始 900ms
+  const MIN_INTERVAL  = 300;      // 最快 300ms
+  const LEVEL_TIME    = 30000;    // 每 30 秒升一级
+  const LEVEL_STEP    = 60;       // 每级减少 60ms
+
+  let dropInterval = BASE_INTERVAL;
   let dropCounter = 0;
   let lastTime = 0;
-  let totalTime = 0;           // 累计游戏时间（ms）
+  let totalTime = 0;
   let level = 1;
 
   function createBoard() {
@@ -57,7 +67,7 @@
   }
 
   function spawnPiece() {
-    const type = randomPieceType();
+    const type = nextType != null ? nextType : randomPieceType();
     const shape = SHAPES[type].map(row => row.slice());
     currentPiece = {
       type,
@@ -65,6 +75,10 @@
       x: Math.floor((COLS - shape[0].length) / 2),
       y: 0
     };
+
+    // 为下一次生成下一个类型
+    nextType = randomPieceType();
+    drawNextPiece();
 
     if (collide(board, currentPiece)) {
       gameOver = true;
@@ -78,8 +92,10 @@
     gameOver = false;
     level = 1;
     totalTime = 0;
-    dropInterval = 800;
+    dropInterval = BASE_INTERVAL;
     dropCounter = 0;
+
+    nextType = randomPieceType();
     spawnPiece();
   }
 
@@ -127,7 +143,7 @@
       for (let y = N - 1; y >= 0; y--) {
         row.push(matrix[y][x]);
       }
-      result.push(row);
+      row.length && result.push(row);
     }
     return result;
   }
@@ -209,13 +225,39 @@
     if (type === 0) return;
     ctx.fillStyle = COLORS[type];
     ctx.fillRect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
-    ctx.strokeStyle = '#111';
+    ctx.strokeStyle = '#020617';
     ctx.strokeRect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
   }
 
+  function drawGrid() {
+    ctx.strokeStyle = '#1f2937'; // 网格线颜色
+    ctx.lineWidth = 0.5;
+
+    // 垂直线
+    for (let x = 0; x <= COLS; x++) {
+      ctx.beginPath();
+      const px = x * BLOCK_SIZE + 0.5;
+      ctx.moveTo(px, 0);
+      ctx.lineTo(px, canvas.height);
+      ctx.stroke();
+    }
+
+    // 水平线
+    for (let y = 0; y <= ROWS; y++) {
+      ctx.beginPath();
+      const py = y * BLOCK_SIZE + 0.5;
+      ctx.moveTo(0, py);
+      ctx.lineTo(canvas.width, py);
+      ctx.stroke();
+    }
+  }
+
   function drawBoard() {
-    ctx.fillStyle = '#000';
+    ctx.fillStyle = '#111827';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // 网格放在方块下面
+    drawGrid();
 
     for (let y = 0; y < ROWS; y++) {
       for (let x = 0; x < COLS; x++) {
@@ -232,16 +274,16 @@
       }
     }
 
-    ctx.fillStyle = '#ffffff';
+    ctx.fillStyle = '#e5e7eb';
     ctx.font = '14px sans-serif';
     ctx.fillText('Score: ' + score, 6, 18);
     ctx.fillText('Lines: ' + lines, 6, 34);
     ctx.fillText('Level: ' + level, 6, 50);
 
     if (gameOver) {
-      ctx.fillStyle = 'rgba(0,0,0,0.65)';
+      ctx.fillStyle = 'rgba(15,23,42,0.72)';
       ctx.fillRect(0, canvas.height / 2 - 40, canvas.width, 80);
-      ctx.fillStyle = '#ffffff';
+      ctx.fillStyle = '#f9fafb';
       ctx.font = '22px sans-serif';
       const msg = 'Game Over';
       const msg2 = '点棋盘重新开始';
@@ -253,6 +295,42 @@
     }
   }
 
+  function drawNextPiece() {
+    if (!nextCtx || nextType == null) return;
+
+    const w = nextCanvas.width;
+    const h = nextCanvas.height;
+
+    nextCtx.fillStyle = '#111827';
+    nextCtx.fillRect(0, 0, w, h);
+
+    const shape = SHAPES[nextType];
+    if (!shape) return;
+
+    const rows = shape.length;
+    const cols = shape[0].length;
+
+    const BLOCK = Math.floor(Math.min(w / (cols + 1), h / (rows + 1)));
+
+    const offsetX = (w - cols * BLOCK) / 2;
+    const offsetY = (h - rows * BLOCK) / 2;
+
+    nextCtx.strokeStyle = '#020617';
+    nextCtx.lineWidth = 0.5;
+
+    for (let y = 0; y < rows; y++) {
+      for (let x = 0; x < cols; x++) {
+        if (shape[y][x]) {
+          const px = offsetX + x * BLOCK;
+          const py = offsetY + y * BLOCK;
+          nextCtx.fillStyle = COLORS[nextType];
+          nextCtx.fillRect(px, py, BLOCK, BLOCK);
+          nextCtx.strokeRect(px, py, BLOCK, BLOCK);
+        }
+      }
+    }
+  }
+
   function update(time = 0) {
     const delta = time - lastTime;
     lastTime = time;
@@ -261,12 +339,15 @@
       dropCounter += delta;
       totalTime += delta;
 
-      // 随时间升级：每 20 秒提升一级
-      const newLevel = 1 + Math.floor(totalTime / 20000);
+      // 时间驱动的等级和速度
+      const newLevel = 1 + Math.floor(totalTime / LEVEL_TIME);
       if (newLevel !== level) {
         level = newLevel;
       }
-      dropInterval = Math.max(180, 800 - (level - 1) * 80);
+      dropInterval = Math.max(
+        MIN_INTERVAL,
+        BASE_INTERVAL - (level - 1) * LEVEL_STEP
+      );
 
       if (dropCounter > dropInterval) {
         playerDrop();
@@ -293,7 +374,6 @@
   }
 
   function bindControls() {
-    // 触屏 / 鼠标按钮
     const buttons = document.querySelectorAll('#controls [data-action]');
     buttons.forEach(btn => {
       const action = btn.dataset.action;
@@ -316,7 +396,7 @@
     canvas.addEventListener('mousedown', restartHandler);
   }
 
-  // 可选：保留键盘支持（在电脑上调试方便）
+  // 保留键盘支持（PC 调试方便）
   function bindKeyboard() {
     document.addEventListener('keydown', (e) => {
       if (gameOver && (e.code === 'Enter' || e.code === 'Space')) {
@@ -340,10 +420,9 @@
   function main() {
     resetGame();
     bindControls();
-    bindKeyboard(); // 只影响电脑调试，不影响手机
+    bindKeyboard();
     requestAnimationFrame(update);
   }
 
   main();
 })();
-
