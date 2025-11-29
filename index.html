@@ -15,12 +15,18 @@
       <canvas id="game-canvas"></canvas>
     </div>
 
-    <!-- 信息条：下一块预览 -->
+    <!-- 下一块预览 -->
     <div id="info-row">
       <div id="next-wrapper">
         <span class="label">Next</span>
         <canvas id="next-canvas" width="80" height="80"></canvas>
       </div>
+    </div>
+
+    <!-- 提示放在两侧，小字号 -->
+    <div id="tips-row">
+      <span class="tip-left">◀ ▶：左右移动，↻：旋转</span>
+      <span class="tip-right">▼：下落，⏬：快速到底</span>
     </div>
 
     <!-- 控制区：左侧 左/旋转/右 ；右侧 单/双下箭头 -->
@@ -36,14 +42,8 @@
         <button class="ctrl-btn vertical main" data-action="hard">⏬</button>
       </div>
     </div>
-
-    <p id="tip">
-      ◀ ▶ 左右移动，↻ 旋转，▼ 普通下落，⏬ 快速到底。<br>
-      Game Over 时点棋盘即可重新开始。
-    </p>
   </div>
 
   <script src="js/main.js"></script>
 </body>
 </html>
-
