@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <title>俄罗斯方块 - H5 Demo</title>
+  <title>俄罗斯方块 - 手机版</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="css/style.css">
 </head>
@@ -10,25 +10,32 @@
   <div id="page">
     <h1>俄罗斯方块</h1>
 
-    <div id="game-wrapper">
-      <!-- 画布：尺寸会在 main.js 里按 10x20 方块自动设置 -->
+    <!-- 棋盘区域 -->
+    <div id="game-area">
       <canvas id="game-canvas"></canvas>
+    </div>
 
-      <div id="help">
-        <p>键盘操作：</p>
-        <ul>
-          <li>← →：左右移动</li>
-          <li>↑：旋转方块</li>
-          <li>↓：加速下落</li>
-          <li>Space：硬降到底</li>
-          <li>Enter：在 Game Over 后重新开始</li>
-        </ul>
+    <!-- 控制区域：左下左右+旋转，右侧单/双下箭头 -->
+    <div id="controls">
+      <div id="ctrl-left">
+        <button class="ctrl-btn" data-action="left">◀</button>
+        <button class="ctrl-btn rotate" data-action="rotate">↻</button>
+        <button class="ctrl-btn" data-action="right">▶</button>
+      </div>
+
+      <div id="ctrl-right">
+        <button class="ctrl-btn vertical" data-action="down">▼</button>
+        <button class="ctrl-btn vertical main" data-action="hard">⏬</button>
       </div>
     </div>
 
-    <p id="tip">在手机上建议横屏，并连接外接键盘体验更好。</p>
+    <p id="tip">
+      按钮说明：◀ ▶ 左右移动，↻ 旋转，▼ 普通下落，⏬ 快速到底。<br>
+      Game Over 时点棋盘即可重新开始。
+    </p>
   </div>
 
   <script src="js/main.js"></script>
 </body>
 </html>
+

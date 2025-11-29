@@ -2,15 +2,14 @@
   const canvas = document.getElementById('game-canvas');
   const ctx = canvas.getContext('2d');
 
-  // 棋盘尺寸：10 列 20 行
+  // 棋盘：10 列 20 行
   const COLS = 10;
   const ROWS = 20;
-  const BLOCK_SIZE = 30; // 每个方块像素大小
+  const BLOCK_SIZE = 30;
 
   canvas.width = COLS * BLOCK_SIZE;
   canvas.height = ROWS * BLOCK_SIZE;
 
-  // 颜色：索引 0 为空
   const COLORS = [
     '#000000',    // 0 空
     '#00ffff',    // 1 I
@@ -22,35 +21,14 @@
     '#ff0000'     // 7 Z
   ];
 
-  // 7 种俄罗斯方块形状（矩阵）
   const SHAPES = {
-    1: [ // I
-      [1, 1, 1, 1]
-    ],
-    2: [ // J
-      [1, 0, 0],
-      [1, 1, 1]
-    ],
-    3: [ // L
-      [0, 0, 1],
-      [1, 1, 1]
-    ],
-    4: [ // O
-      [1, 1],
-      [1, 1]
-    ],
-    5: [ // S
-      [0, 1, 1],
-      [1, 1, 0]
-    ],
-    6: [ // T
-      [0, 1, 0],
-      [1, 1, 1]
-    ],
-    7: [ // Z
-      [1, 1, 0],
-      [0, 1, 1]
-    ]
+    1: [ [1, 1, 1, 1] ],                    // I
+    2: [ [1, 0, 0], [1, 1, 1] ],            // J
+    3: [ [0, 0, 1], [1, 1, 1] ],            // L
+    4: [ [1, 1], [1, 1] ],                  // O
+    5: [ [0, 1, 1], [1, 1, 0] ],            // S
+    6: [ [0, 1, 0], [1, 1, 1] ],            // T
+    7: [ [1, 1, 0], [0, 1, 1] ]             // Z
   };
 
   let board;
@@ -59,9 +37,12 @@
   let lines = 0;
   let gameOver = false;
 
-  let dropInterval = 800;  // 下落间隔（毫秒）
-  let lastTime = 0;
+  // 难度相关
+  let dropInterval = 800;      // 当前下落间隔（ms）
   let dropCounter = 0;
+  let lastTime = 0;
+  let totalTime = 0;           // 累计游戏时间（ms）
+  let level = 1;
 
   function createBoard() {
     const matrix = [];
@@ -71,38 +52,35 @@
     return matrix;
   }
 
-  function resetGame() {
-    board = createBoard();
-    score = 0;
-    lines = 0;
-    gameOver = false;
-    spawnPiece();
-  }
-
   function randomPieceType() {
-    return 1 + Math.floor(Math.random() * 7); // 1..7
+    return 1 + Math.floor(Math.random() * 7);
   }
 
   function spawnPiece() {
     const type = randomPieceType();
     const shape = SHAPES[type].map(row => row.slice());
-    const piece = {
+    currentPiece = {
       type,
       matrix: shape,
-      x: 0,
+      x: Math.floor((COLS - shape[0].length) / 2),
       y: 0
     };
 
-    // 初始放在顶部中间
-    piece.x = Math.floor((COLS - piece.matrix[0].length) / 2);
-    piece.y = 0;
-
-    currentPiece = piece;
-
     if (collide(board, currentPiece)) {
-      // 一出生就碰撞，游戏结束
       gameOver = true;
     }
+  }
+
+  function resetGame() {
+    board = createBoard();
+    score = 0;
+    lines = 0;
+    gameOver = false;
+    level = 1;
+    totalTime = 0;
+    dropInterval = 800;
+    dropCounter = 0;
+    spawnPiece();
   }
 
   function collide(board, piece) {
@@ -113,10 +91,8 @@
           const bx = piece.x + x;
           const by = piece.y + y;
           if (
-            by < 0 ||
-            by >= ROWS ||
-            bx < 0 ||
-            bx >= COLS ||
+            by < 0 || by >= ROWS ||
+            bx < 0 || bx >= COLS ||
             board[by][bx] !== 0
           ) {
             return true;
@@ -157,19 +133,18 @@
   }
 
   function rotatePiece() {
+    if (gameOver) return;
     const oldMatrix = currentPiece.matrix;
     const rotated = rotateMatrix(oldMatrix);
     const oldX = currentPiece.x;
 
     currentPiece.matrix = rotated;
 
-    // 简单的左右调整，防止旋转后冲出边界
     if (collide(board, currentPiece)) {
       currentPiece.x = oldX - 1;
       if (collide(board, currentPiece)) {
         currentPiece.x = oldX + 1;
         if (collide(board, currentPiece)) {
-          // 旋转失败，恢复
           currentPiece.x = oldX;
           currentPiece.matrix = oldMatrix;
         }
@@ -186,20 +161,16 @@
           continue outer;
         }
       }
-      // 这一行满了
       const row = board.splice(y, 1)[0];
       row.fill(0);
       board.unshift(row);
       cleared++;
-      y++; // 这一行重新检查
+      y++;
     }
 
     if (cleared > 0) {
       lines += cleared;
-      // 简单计分规则：n 行一次 = n^2 * 100
       score += cleared * cleared * 100;
-      // 可选：随消行数减小下落间隔
-      dropInterval = Math.max(150, 800 - lines * 20);
     }
   }
 
@@ -246,14 +217,12 @@
     ctx.fillStyle = '#000';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // 棋盘
     for (let y = 0; y < ROWS; y++) {
       for (let x = 0; x < COLS; x++) {
         drawCell(x, y, board[y][x]);
       }
     }
 
-    // 当前方块
     const m = currentPiece.matrix;
     for (let y = 0; y < m.length; y++) {
       for (let x = 0; x < m[y].length; x++) {
@@ -263,24 +232,24 @@
       }
     }
 
-    // 分数
     ctx.fillStyle = '#ffffff';
-    ctx.font = '16px sans-serif';
-    ctx.fillText('Score: ' + score, 10, 20);
-    ctx.fillText('Lines: ' + lines, 10, 40);
+    ctx.font = '14px sans-serif';
+    ctx.fillText('Score: ' + score, 6, 18);
+    ctx.fillText('Lines: ' + lines, 6, 34);
+    ctx.fillText('Level: ' + level, 6, 50);
 
     if (gameOver) {
-      ctx.fillStyle = 'rgba(0,0,0,0.7)';
+      ctx.fillStyle = 'rgba(0,0,0,0.65)';
       ctx.fillRect(0, canvas.height / 2 - 40, canvas.width, 80);
       ctx.fillStyle = '#ffffff';
-      ctx.font = '24px sans-serif';
+      ctx.font = '22px sans-serif';
       const msg = 'Game Over';
-      const msg2 = '按 Enter 重新开始';
+      const msg2 = '点棋盘重新开始';
       const w1 = ctx.measureText(msg).width;
       const w2 = ctx.measureText(msg2).width;
-      ctx.fillText(msg, (canvas.width - w1) / 2, canvas.height / 2 - 5);
+      ctx.fillText(msg, (canvas.width - w1) / 2, canvas.height / 2 - 6);
       ctx.font = '16px sans-serif';
-      ctx.fillText(msg2, (canvas.width - w2) / 2, canvas.height / 2 + 25);
+      ctx.fillText(msg2, (canvas.width - w2) / 2, canvas.height / 2 + 22);
     }
   }
 
@@ -290,6 +259,15 @@
 
     if (!gameOver) {
       dropCounter += delta;
+      totalTime += delta;
+
+      // 随时间升级：每 20 秒提升一级
+      const newLevel = 1 + Math.floor(totalTime / 20000);
+      if (newLevel !== level) {
+        level = newLevel;
+      }
+      dropInterval = Math.max(180, 800 - (level - 1) * 80);
+
       if (dropCounter > dropInterval) {
         playerDrop();
       }
@@ -299,27 +277,70 @@
     requestAnimationFrame(update);
   }
 
-  function bindInput() {
-    document.addEventListener('keydown', (e) => {
-      if (e.code === 'ArrowLeft') {
-        playerMove(-1);
-      } else if (e.code === 'ArrowRight') {
-        playerMove(1);
-      } else if (e.code === 'ArrowDown') {
-        playerDrop();
-      } else if (e.code === 'ArrowUp') {
-        rotatePiece();
-      } else if (e.code === 'Space') {
-        hardDrop();
-      } else if (e.code === 'Enter' && gameOver) {
+  function handleAction(action) {
+    if (gameOver) return;
+    if (action === 'left') {
+      playerMove(-1);
+    } else if (action === 'right') {
+      playerMove(1);
+    } else if (action === 'down') {
+      playerDrop();
+    } else if (action === 'rotate') {
+      rotatePiece();
+    } else if (action === 'hard') {
+      hardDrop();
+    }
+  }
+
+  function bindControls() {
+    // 触屏 / 鼠标按钮
+    const buttons = document.querySelectorAll('#controls [data-action]');
+    buttons.forEach(btn => {
+      const action = btn.dataset.action;
+      const handler = (e) => {
+        e.preventDefault();
+        handleAction(action);
+      };
+      btn.addEventListener('touchstart', handler, { passive: false });
+      btn.addEventListener('mousedown', handler);
+    });
+
+    // 点击棋盘：Game Over 时重新开始
+    const restartHandler = (e) => {
+      e.preventDefault();
+      if (gameOver) {
         resetGame();
+      }
+    };
+    canvas.addEventListener('touchstart', restartHandler, { passive: false });
+    canvas.addEventListener('mousedown', restartHandler);
+  }
+
+  // 可选：保留键盘支持（在电脑上调试方便）
+  function bindKeyboard() {
+    document.addEventListener('keydown', (e) => {
+      if (gameOver && (e.code === 'Enter' || e.code === 'Space')) {
+        resetGame();
+        return;
+      }
+      if (e.code === 'ArrowLeft') {
+        handleAction('left');
+      } else if (e.code === 'ArrowRight') {
+        handleAction('right');
+      } else if (e.code === 'ArrowDown') {
+        handleAction('down');
+      } else if (e.code === 'ArrowUp') {
+        handleAction('rotate');
+      } else if (e.code === 'Space') {
+        handleAction('hard');
       }
     });
   }
 
   function main() {
     resetGame();
-    bindInput();
+    bindControls();
+    bindKeyboard(); // 只影响电脑调试，不影响手机
     requestAnimationFrame(update);
   }
 
